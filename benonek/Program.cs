@@ -64,20 +64,28 @@ namespace benonek
             {
                 var template = Handlebars.Compile(File.ReadAllText("Views\\sablon.hbs"));
 
-                //FileStream ReadFileStream = new FileStream("targy.xml", FileMode.Open, FileAccess.Read, FileShare.Read);
+                string[] datafiles = Directory.GetFiles("data");
 
-                //// Load the object saved above by using the Deserialize function
-                //SubjectDataSheet loadedsubject = (SubjectDataSheet)SerializerObj.Deserialize(ReadFileStream);
+                Directory.CreateDirectory("out");
 
-                //// Cleanup
-                //ReadFileStream.Close();
-                //subject.WriteToFile("targy.txt");
-                //string result = template(subject);
+                foreach (var filename in datafiles)
+                {
+                    FileStream ReadFileStream = new FileStream("data\\" + filename, FileMode.Open, FileAccess.Read, FileShare.Read);
 
-                //File.WriteAllText("out.html", result);
+                    XmlSerializer SerializerObj = new XmlSerializer(typeof(SubjectDataSheet));
 
-                //HtmlToPdf printer = new IronPdf.HtmlToPdf();
-                //printer.RenderHtmlAsPdf(result).SaveAs("File.pdf");
+                    // Load the object saved above by using the Deserialize function
+                    SubjectDataSheet loadedsubject = (SubjectDataSheet)SerializerObj.Deserialize(ReadFileStream);
+
+                    // Cleanup
+                    ReadFileStream.Close();
+
+                    string result = template(loadedsubject);
+
+                    HtmlToPdf printer = new IronPdf.HtmlToPdf();
+                    printer.RenderHtmlAsPdf(result).SaveAs("out\\" + filename.Replace(".xml","") + ".pdf");
+
+                }
             }
             Console.ReadKey();
         }
